@@ -2,6 +2,8 @@ package cn.bugstack.infrastructure.redis;
 
 import org.redisson.api.*;
 
+import java.util.Map;
+
 /**
  * Redis 服务
  * @author Fuzhengwei bugstack.cn @小傅哥
@@ -143,6 +145,15 @@ public interface IRedisService {
     String getFromList(String key, int index);
 
     /**
+     * 获取Map
+     *
+     * @param key 键
+     * @return 值
+     */
+    <K, V> RMap<K, V> getMap(String key);
+
+
+    /**
      * 将指定的键值对添加到哈希表中
      *
      * @param key   键
@@ -227,5 +238,4 @@ public interface IRedisService {
      * @return 返回结果
      */
     <T> RBloomFilter<T> getBloomFilter(String key);
-
 }

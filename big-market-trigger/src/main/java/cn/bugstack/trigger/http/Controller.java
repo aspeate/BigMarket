@@ -1,4 +1,5 @@
-package cn.bugstack.xfg.frame.trigger.http;
+//package cn.bugstack.xfg.frame.trigger.http;
+package cn.bugstack.trigger.http;
 
 import cn.bugstack.types.common.Constants;
 import cn.bugstack.types.model.Response;

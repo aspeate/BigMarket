@@ -95,6 +95,10 @@ public class RedissonService implements IRedisService {
         return list.get(index);
     }
 
+    public <K, V> RMap<K, V> getMap(String key) {
+        return redissonClient.getMap(key);
+    }
+
     public void addToMap(String key, String field, String value) {
         RMap<String, String> map = redissonClient.getMap(key);
         map.put(field, value);
@@ -144,6 +148,7 @@ public class RedissonService implements IRedisService {
     public <T> RBloomFilter<T> getBloomFilter(String key) {
         return redissonClient.getBloomFilter(key);
     }
+
 
 
 }
