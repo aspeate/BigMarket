@@ -5,12 +5,14 @@ import cn.bugstack.domain.strategy.model.entity.RaffleFactorEntity;
 import cn.bugstack.domain.strategy.service.IRaffleStrategy;
 import cn.bugstack.domain.strategy.service.armory.IStrategyArmory;
 import cn.bugstack.domain.strategy.service.armory.IStrategyDispatch;
+import cn.bugstack.domain.strategy.service.rule.impl.RuleLockLogicFilter;
 import cn.bugstack.domain.strategy.service.rule.impl.RuleWeightLogicFilter;
 import com.alibaba.fastjson.JSON;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.util.ReflectionTestUtils;
@@ -31,6 +33,8 @@ public class StrategyArmoryTest {
 
     @Resource
     private RuleWeightLogicFilter ruleWeightLogicFilter;
+    @Autowired
+    private RuleLockLogicFilter ruleLockLogicFilter;
 
     @Test
     public void test_assembleLotteryStrategy() {
@@ -77,7 +81,10 @@ public class StrategyArmoryTest {
 
     @Before
     public void setUp() {
+        strategyArmory.assembleLotteryStrategy(10003L);
+
         ReflectionTestUtils.setField(ruleWeightLogicFilter, "userScore", 4500L);
+        ReflectionTestUtils.setField(ruleLockLogicFilter, "userRaffleCount", 10L);
     }
 
     @Test
@@ -106,4 +113,16 @@ public class StrategyArmoryTest {
         log.info("测试结果：{}", JSON.toJSONString(raffleAwardEntity));
     }
 
+    @Test
+    public void test_raffle_center_rule_lock(){
+        RaffleFactorEntity raffleFactorEntity = RaffleFactorEntity.builder()
+                .userId("xiaofuge")
+                .strategyId(10003L)
+                .build();
+
+        RaffleAwardEntity raffleAwardEntity = raffleStrategy.performRaffle(raffleFactorEntity);
+
+        log.info("请求参数: {}", JSON.toJSONString(raffleFactorEntity));
+        log.info("测试结果: {}", JSON.toJSONString(raffleAwardEntity));
+    }
 }
