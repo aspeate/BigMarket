@@ -8,7 +8,6 @@ import cn.bugstack.domain.strategy.service.armory.IStrategyDispatch;
 import cn.bugstack.domain.strategy.service.rule.chain.ILogicChain;
 import cn.bugstack.domain.strategy.service.rule.chain.factory.DefaultChainFactory;
 import cn.bugstack.domain.strategy.service.rule.chain.impl.RuleWeightLogicChain;
-import cn.bugstack.domain.strategy.service.rule.filter.impl.RuleLockLogicFilter;
 import com.alibaba.fastjson.JSON;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Before;
@@ -34,8 +33,7 @@ public class StrategyArmoryTest {
 
     @Resource
     private RuleWeightLogicChain ruleWeightLogicChain;
-    @Resource
-    private RuleLockLogicFilter ruleLockLogicFilter;
+
     @Resource
     private DefaultChainFactory defaultChainFactory;
 
@@ -76,20 +74,34 @@ public class StrategyArmoryTest {
 //        strategyArmory.assembleLotteryStrategy(10003L);
 //
 //        ReflectionTestUtils.setField(ruleWeightLogicChain, "userScore", 4500L);
-//        ReflectionTestUtils.setField(ruleLockLogicFilter, "userRaffleCount", 10L);
+
 //    }
     @Before
     public void setUp() {
         // 策略装配 100001、100002、100003
-        log.info("测试结果: {}", strategyArmory.assembleLotteryStrategy(10001L));
-        log.info("测试结果: {}", strategyArmory.assembleLotteryStrategy(10003L));
+//        log.info("测试结果: {}", strategyArmory.assembleLotteryStrategy(10001L));
+//        log.info("测试结果: {}", strategyArmory.assembleLotteryStrategy(10003L));
+        log.info("测试结果: {}", strategyArmory.assembleLotteryStrategy(10006L));
+    }
+
+    @Test
+    public void test_performRaffle() {
+        RaffleFactorEntity raffleFactorEntity = RaffleFactorEntity.builder()
+                .userId("xiaofuge")
+                .strategyId(10006L)
+                .build();
+
+        RaffleAwardEntity raffleAwardEntity = raffleStrategy.performRaffle(raffleFactorEntity);
+
+        log.info("请求参数：{}", JSON.toJSONString(raffleFactorEntity));
+        log.info("测试结果：{}", JSON.toJSONString(raffleAwardEntity));
     }
 
     @Test
     public void test_LogicChain_rule_blacklist() {
         ILogicChain logicChain = defaultChainFactory.openLogicChain(10001L);
-        Integer awardId = logicChain.logic("user001", 10001L);
-        log.info("测试结果: {}", awardId);
+        DefaultChainFactory.StrategyAwardVO StrategyAwardVO = logicChain.logic("xiaofuge", 10001L);
+        log.info("测试结果: {}", JSON.toJSONString(StrategyAwardVO));
     }
 
     @Test
@@ -98,30 +110,17 @@ public class StrategyArmoryTest {
         ReflectionTestUtils.setField(ruleWeightLogicChain, "userScore", 4900L);
 
         ILogicChain logicChain = defaultChainFactory.openLogicChain(10001L);
-        Integer awardId = logicChain.logic("xiaofuge", 10001L);
-        log.info("测试结果: {}", awardId);
+        DefaultChainFactory.StrategyAwardVO StrategyAwardVO = logicChain.logic("xiaofuge", 10001L);
+        log.info("测试结果: {}", JSON.toJSONString(StrategyAwardVO));
     }
 
     @Test
     public void test_LogicChain_rule_default() {
         ILogicChain logicChain = defaultChainFactory.openLogicChain(10001L);
-        Integer awardId = logicChain.logic("xiaofuge", 10001L);
-        log.info("测试结果: {}", awardId);
+        DefaultChainFactory.StrategyAwardVO StrategyAwardVO = logicChain.logic("xiaofuge", 10001L);
+        log.info("测试结果: {}", JSON.toJSONString(StrategyAwardVO));
     }
 
-
-    @Test
-    public void test_performRaffle() {
-        RaffleFactorEntity raffleFactorEntity = RaffleFactorEntity.builder()
-                .userId("xiaofuge")
-                .strategyId(10001L)
-                .build();
-
-        RaffleAwardEntity raffleAwardEntity = raffleStrategy.performRaffle(raffleFactorEntity);
-
-        log.info("请求参数：{}", JSON.toJSONString(raffleFactorEntity));
-        log.info("测试结果：{}", JSON.toJSONString(raffleAwardEntity));
-    }
 
     @Test
     public void test_performRaffle_blacklist() {
