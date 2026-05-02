@@ -9,6 +9,10 @@ import cn.bugstack.infrastructure.persistent.dao.*;
 import cn.bugstack.infrastructure.persistent.po.*;
 import cn.bugstack.infrastructure.redis.IRedisService;
 import cn.bugstack.types.common.Constants;
+import com.alibaba.fastjson.JSON;
+import lombok.extern.slf4j.Slf4j;
+import org.redisson.api.RBlockingQueue;
+import org.redisson.api.RDelayedQueue;
 import org.redisson.api.RMap;
 import org.springframework.stereotype.Repository;
 
@@ -18,11 +22,13 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 /**
  * 策略仓储实现
  */
 @Repository
+@Slf4j
 public class StrategyRepository implements IStrategyRepository {
 
     @Resource
@@ -156,9 +162,14 @@ public class StrategyRepository implements IStrategyRepository {
     @Override
     public RuleTreeVO queryRuleTreeVOByTreeId(String treeId) {
         // 优先从缓存获取
+//        String cacheKey = Constants.RedisKey.RULE_TREE_VO_KEY + treeId;
+//        RuleTreeVO ruleTreeVOCache = redisService.getValue(cacheKey);
+//        if (null != ruleTreeVOCache) return ruleTreeVOCache;
         String cacheKey = Constants.RedisKey.RULE_TREE_VO_KEY + treeId;
-        RuleTreeVO ruleTreeVOCache = redisService.getValue(cacheKey);
-        if (null != ruleTreeVOCache) return ruleTreeVOCache;
+        String ruleTreeVOJson = redisService.getValue(cacheKey);
+        if (null != ruleTreeVOJson) {
+            return JSON.parseObject(ruleTreeVOJson, RuleTreeVO.class);
+        }
 
 
         RuleTree ruleTree = ruleTreeDao.queryRuleTreeByTreeId(treeId);
@@ -202,10 +213,57 @@ public class StrategyRepository implements IStrategyRepository {
                 .treeNodeMap(treeNodeMap)
                 .build();
 
-        redisService.setValue(cacheKey, ruleTreeVODB);
+//        redisService.setValue(cacheKey, ruleTreeVODB);
+        redisService.setValue(cacheKey, JSON.toJSONString(ruleTreeVODB));
+
 
         return ruleTreeVODB;
 
+    }
+
+    @Override
+    public void cacheStrategyAwardCount(String cacheKey, Integer awardCount) {
+        if (null != redisService.getValue(cacheKey)) return;
+        redisService.setAtmoicLong(cacheKey, awardCount);
+    }
+
+    @Override
+    public Boolean subtractionAwardStock(String cacheKey) {
+        long surplus = redisService.decr(cacheKey);
+        if (surplus < 0) {
+            redisService.setValue(cacheKey, 0);
+            return false;
+        }
+        String lockKey = cacheKey + Constants.UNDERLINE + surplus;
+        Boolean lock = redisService.setNX(lockKey, "lock");
+        if (!lock) {
+            log.info("库存扣减失败{}，请稍后重试", lockKey);
+        }
+        return lock;
+    }
+
+    @Override
+    public void awardStockConsumeSendQueue(StrategyAwardStockKeyVO strategyAwardStockKeyVO) {
+        String cacheKey = Constants.RedisKey.STRATEGY_AWARD_COUNT_QUEUE_KEY;
+        RBlockingQueue<StrategyAwardStockKeyVO> blockingQueue = redisService.getBlockingQueue(cacheKey);
+        RDelayedQueue<StrategyAwardStockKeyVO> delayedQueue = redisService.getDelayedQueue(blockingQueue);
+        delayedQueue.offer(strategyAwardStockKeyVO, 3, TimeUnit.SECONDS);
+
+    }
+
+    @Override
+    public StrategyAwardStockKeyVO takeQueueValue() {
+        String cacheKey = Constants.RedisKey.STRATEGY_AWARD_COUNT_QUEUE_KEY;
+        RBlockingQueue<StrategyAwardStockKeyVO> blockingQueue = redisService.getBlockingQueue(cacheKey);
+        return blockingQueue.poll();
+    }
+
+    @Override
+    public void updateStrategyAwardStock(Long strategyId, Integer awardId) {
+        StrategyAward strategyAward = new StrategyAward();
+        strategyAward.setStrategyId(strategyId);
+        strategyAward.setAwardId(awardId);
+        strategyAwardDao.updateStrategyAwardStock(strategyAward);
     }
 
 

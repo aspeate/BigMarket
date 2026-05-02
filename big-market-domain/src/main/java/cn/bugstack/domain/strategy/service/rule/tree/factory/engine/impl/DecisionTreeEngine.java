@@ -35,17 +35,40 @@ public class DecisionTreeEngine implements IDecisionTreeEngine {
         String nextNode = ruleTreeVO.getTreeRootRuleNode();
         Map<String, RuleTreeNodeVO> treeNodeMap = ruleTreeVO.getTreeNodeMap();
 
+
+        log.info("决策树引擎初始化 treeId:{} treeRootRuleNode:{} treeNodeMapSize:{}",
+                ruleTreeVO.getTreeId(), nextNode, treeNodeMap.size());
+
         // 获取起始节点「根节点记录了第一个要执行的规则」
         RuleTreeNodeVO ruleTreeNode = treeNodeMap.get(nextNode);
         while (null != nextNode) {
             // 获取决策节点
+            // 获取决策节点
+            if (ruleTreeNode == null) {
+                log.error("决策树引擎【{}】treeId:{} node:{} 节点不存在！", ruleTreeVO.getTreeName(), ruleTreeVO.getTreeId(), nextNode);
+                throw new RuntimeException("节点不存在: " + nextNode);
+            }
+
             ILogicTreeNode logicTreeNode = logicTreeNodeGroup.get(ruleTreeNode.getRuleKey());
 
+            if (logicTreeNode == null) {
+                log.error("决策树引擎【{}】treeId:{} node:{} ruleKey:{} 未找到对应的规则节点实现！",
+                        ruleTreeVO.getTreeName(), ruleTreeVO.getTreeId(), nextNode, ruleTreeNode.getRuleKey());
+                throw new RuntimeException("未找到规则节点实现: " + ruleTreeNode.getRuleKey());
+            }
+
+            String ruleValue = ruleTreeNode.getRuleValue();
+
             // 决策节点计算
-            DefaultTreeFactory.TreeActionEntity logicEntity = logicTreeNode.logic(userId, strategyId, awardId);
+            DefaultTreeFactory.TreeActionEntity logicEntity = logicTreeNode.logic(userId, strategyId, awardId, ruleValue);
             RuleLogicCheckTypeVO ruleLogicCheckTypeVO = logicEntity.getRuleLogicCheckType();
             strategyAwardData = logicEntity.getStrategyAwardVO();
             log.info("决策树引擎【{}】treeId:{} node:{} code:{}", ruleTreeVO.getTreeName(), ruleTreeVO.getTreeId(), nextNode, ruleLogicCheckTypeVO.getCode());
+
+            // 如果规则接管流程，直接返回结果
+            if (RuleLogicCheckTypeVO.TAKE_OVER == ruleLogicCheckTypeVO) {
+                return strategyAwardData;
+            }
 
             // 获取下个节点
             nextNode = nextNode(ruleLogicCheckTypeVO.getCode(), ruleTreeNode.getTreeNodeLineVOList());

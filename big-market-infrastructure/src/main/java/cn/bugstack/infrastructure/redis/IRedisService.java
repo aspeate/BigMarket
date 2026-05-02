@@ -2,8 +2,6 @@ package cn.bugstack.infrastructure.redis;
 
 import org.redisson.api.*;
 
-import java.util.Map;
-
 /**
  * Redis 服务
  * @author Fuzhengwei bugstack.cn @小傅哥
@@ -238,4 +236,10 @@ public interface IRedisService {
      * @return 返回结果
      */
     <T> RBloomFilter<T> getBloomFilter(String key);
+
+    Long getAtmoicLong(String key);
+
+    void setAtmoicLong(String key, Integer value);
+
+    Boolean setNX(String key, String lock);
 }
