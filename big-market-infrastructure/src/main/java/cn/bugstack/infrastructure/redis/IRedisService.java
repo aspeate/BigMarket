@@ -2,6 +2,8 @@ package cn.bugstack.infrastructure.redis;
 
 import org.redisson.api.*;
 
+import java.util.concurrent.TimeUnit;
+
 /**
  * Redis 服务
  * @author Fuzhengwei bugstack.cn @小傅哥
@@ -242,4 +244,6 @@ public interface IRedisService {
     void setAtmoicLong(String key, Integer value);
 
     Boolean setNX(String key, String lock);
+
+    Boolean setNx(String key, long expired, TimeUnit timeUnit);
 }
