@@ -1,6 +1,6 @@
-package cn.bugstack.domain.activity.service.rule.chain.factory;
+package cn.bugstack.domain.activity.service.quota.rule.factory;
 
-import cn.bugstack.domain.activity.service.rule.chain.IActionChain;
+import cn.bugstack.domain.activity.service.quota.rule.IActionChain;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.springframework.stereotype.Service;

@@ -1,4 +1,4 @@
-package cn.bugstack.domain.activity.service.rule.chain;
+package cn.bugstack.domain.activity.service.quota.rule;
 
 
 import cn.bugstack.domain.activity.model.entity.ActivityCountEntity;

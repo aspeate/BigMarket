@@ -16,7 +16,10 @@ public enum ResponseCode {
     UN_ASSEMBLED_STRATEGY_ARMORY("ERR_BIZ_002", "业务异常，策略规则中 rule_weight 权重规则未适用但未配置"),
     ACTIVITY_STATE_ERROR("ERR_BIZ_003", "活动未开启（非Open状态）"),
     ACTIVITY_DATE_ERROR("ERR_BIZ_004", "非活动日期范围"),
-    ACTIVITY_SKU_STOCK_ERROR("ERR_BIZ_005", "活动库存不足")
+    ACTIVITY_SKU_STOCK_ERROR("ERR_BIZ_005", "活动库存不足"),
+    ACCOUNT_QUOTA_ERROR("ERR_BIZ_006", "账户额度不足"),
+    ACCOUNT_MONTH_QUOTA_ERROR("ERR_BIZ_007", "账户月额度不足"),
+    ACCOUNT_DAY_QUOTA_ERROR("ERR_BIZ_008", "账户日额度不足"),
     ;
 
 
