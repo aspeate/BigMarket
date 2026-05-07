@@ -159,6 +159,7 @@ spring:
         prefetch: 1 # 每次投递n个消息，消费完在投递n个
     topic:
       activity_sku_stock_zero: activity_sku_stock_zero
+      send_award: send_award
 
 
 # xxl-job https://www.xuxueli.com/xxl-job/#%E6%AD%A5%E9%AA%A4%E4%B8%80%EF%BC%9A%E8%B0%83%E5%BA%A6%E4%B8%AD%E5%BF%83%E9%85%8D%E7%BD%AE%EF%BC%9A
