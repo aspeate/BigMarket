@@ -1,4 +1,4 @@
-package cn.bugstack.api.dto;
+package cn.bugstack.trigger.api.dto;
 
 import lombok.Data;
 

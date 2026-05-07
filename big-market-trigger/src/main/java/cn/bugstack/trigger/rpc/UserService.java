@@ -1,6 +1,6 @@
 package cn.bugstack.trigger.rpc;
 
-import cn.bugstack.api.IUserService;
+import cn.bugstack.trigger.api.IUserService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.dubbo.config.annotation.DubboService;
 

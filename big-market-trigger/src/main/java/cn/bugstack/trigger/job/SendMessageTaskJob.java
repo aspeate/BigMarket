@@ -29,17 +29,17 @@ public class SendMessageTaskJob {
             int dbCount = dbRouter.dbCount();
             //逐个库扫描task表
             for (int dbIdx = 1; dbIdx < dbCount; dbIdx++) {
-                int finalDbIdx = dbIdx;
-                executor.execute(() -> {
+//                int finalDbIdx = dbIdx;
+//                executor.execute(() -> {
                     try {
-                        dbRouter.setDBKey(finalDbIdx);
+                        dbRouter.setDBKey(dbIdx);
                         dbRouter.setTBKey(0);
                         List<TaskEntity> taskEntityList = taskService.queryNoSendMessageTaskList();
                         if (null == taskEntityList) return;
 
                         //发送mq
                         for (TaskEntity taskEntity : taskEntityList){
-                            executor.execute(() -> {
+//                            executor.execute(() -> {
                                 try {
                                     taskService.sendMessage(taskEntity);
                                     taskService.updateTaskSendMessageCompleted(taskEntity.getUserId(), taskEntity.getMessageId());
@@ -47,12 +47,12 @@ public class SendMessageTaskJob {
                                     log.error("发送mq消息失败 userId:{},topic: {}",taskEntity.getUserId(), taskEntity.getTopic(), e);
                                     taskService.updateTaskSendMessageFail(taskEntity.getUserId(), taskEntity.getMessageId());
                                 }
-                            });
+//                            });
                         }
                     } finally {
                       dbRouter.clear();
                     }
-                });
+//                });
             }
         }catch (Exception e){
             log.error("定时任务,扫描mq任务列表发送消息任务失败", e);

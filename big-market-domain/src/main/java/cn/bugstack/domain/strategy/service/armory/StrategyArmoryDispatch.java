@@ -28,6 +28,12 @@ public class StrategyArmoryDispatch implements IStrategyArmory, IStrategyDispatc
 
 
     @Override
+    public boolean assembleLotteryStrategyByActivityId(Long activityId) {
+        Long strategyId = strategyRepository.queryStrategyIdByActivityId(activityId);
+        return assembleLotteryStrategy(strategyId);
+    }
+
+    @Override
     public boolean assembleLotteryStrategy(Long strategyId) {
         //1.根据策略ID获取策略
         List<StrategyAwardEntity> strategyAwardEntities = strategyRepository.queryStrategyAwardList(strategyId);

@@ -7,8 +7,10 @@ import cn.bugstack.domain.award.repository.IAwardRepository;
 import cn.bugstack.infrastructure.event.EventPublisher;
 import cn.bugstack.infrastructure.persistent.dao.ITaskDao;
 import cn.bugstack.infrastructure.persistent.dao.IUserAwardRecordDao;
+import cn.bugstack.infrastructure.persistent.dao.IUserRaffleOrderDao;
 import cn.bugstack.infrastructure.persistent.po.Task;
 import cn.bugstack.infrastructure.persistent.po.UserAwardRecord;
+import cn.bugstack.infrastructure.persistent.po.UserRaffleOrder;
 import cn.bugstack.middleware.db.router.strategy.IDBRouterStrategy;
 import cn.bugstack.types.enums.ResponseCode;
 import cn.bugstack.types.exception.AppException;
@@ -30,6 +32,8 @@ public class AwardRepository implements IAwardRepository {
     private ITaskDao taskDao;
     @Resource
     private IUserAwardRecordDao userAwardRecordDao;
+    @Resource
+    private IUserRaffleOrderDao userRaffleOrderDao;
     @Resource
     private IDBRouterStrategy dbRouter;
     @Resource
@@ -62,6 +66,10 @@ public class AwardRepository implements IAwardRepository {
         task.setMessage(JSON.toJSONString(taskEntity.getMessage()));
         task.setState(taskEntity.getTaskState().getCode());
 
+        UserRaffleOrder userRaffleOrder = new UserRaffleOrder();
+        userRaffleOrder.setUserId(userAwardRecordEntity.getUserId());
+        userRaffleOrder.setOrderId(userAwardRecordEntity.getOrderId());
+
         try {
             dbRouter.doRouter(userId);
             transactionTemplate.execute(status -> {
@@ -70,6 +78,12 @@ public class AwardRepository implements IAwardRepository {
                     userAwardRecordDao.insert(userAwardRecord);
                     // 2. 任务记录
                     taskDao.insert(task);
+                    // 3. 更新抽奖单
+                    int count = userRaffleOrderDao.updateUserRaffleOrderStateUsed(userRaffleOrder);
+                    if (count != 1){
+                        log.error("用户抽奖单已使用过,不可重复抽奖 userId:{}, activityId: {}, awardId: {}",userId, activityId, awardId);
+                        throw new AppException(ResponseCode.ACTIVITY_ORDER_ERROR.getCode());
+                    }
                     return 1;
                 } catch (DuplicateKeyException e) {
                     status.setRollbackOnly();

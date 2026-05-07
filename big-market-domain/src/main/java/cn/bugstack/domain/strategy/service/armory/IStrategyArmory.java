@@ -9,7 +9,10 @@ public interface IStrategyArmory {
      * 抽奖策略配置,触发的时机可以为活动审核结束后调用
      *
      * @param strategyId 策略ID
-     * @return
+     *
      */
     boolean assembleLotteryStrategy(Long strategyId);
+
+    boolean assembleLotteryStrategyByActivityId(Long activityId);
+
 }

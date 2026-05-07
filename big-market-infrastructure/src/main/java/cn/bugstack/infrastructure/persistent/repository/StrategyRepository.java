@@ -39,9 +39,13 @@ public class StrategyRepository implements IStrategyRepository {
     @Resource
     private IStrategyDao strategyDao;
     @Resource
+    private IRaffleActivityDao raffleActivityDao;
+    @Resource
     private IStrategyRuleDao strategyRuleDao;
     @Resource
     private IStrategyAwardDao strategyAwardDao;
+    @Resource
+    private IRaffleActivityAccountDayDao raffleActivityAccountDayDao;
     @Resource
     private IRuleTreeDao ruleTreeDao;
     @Resource
@@ -301,6 +305,28 @@ public class StrategyRepository implements IStrategyRepository {
 
         redisService.setValue(cacheKey, strategyAwardEntity);
         return strategyAwardEntity;
+    }
+
+    @Override
+    public Long queryStrategyIdByActivityId(Long activityId) {
+        return raffleActivityDao.queryStrategyIdByActivityId(activityId);
+    }
+
+    @Override
+    public long queryTodayUserRaffleCount(String userId, Long strategyId) {
+        //活动id
+        Long activityId = raffleActivityDao.queryActivityIdByStrategyId(strategyId);
+        //封装参数
+        RaffleActivityAccountDay raffleActivityAccountDay = new RaffleActivityAccountDay();
+        raffleActivityAccountDay.setUserId(userId);
+        raffleActivityAccountDay.setActivityId(activityId);
+        raffleActivityAccountDay.setDay(raffleActivityAccountDay.currentDay());
+
+        RaffleActivityAccountDay activityAccountDay = raffleActivityAccountDayDao.queryActivityAccountDayByUserId(raffleActivityAccountDay);
+        if (null == activityAccountDay) return 0;
+
+        //总次数 - 剩余次数 = 今日参与次数
+        return activityAccountDay.getDayCount() - activityAccountDay.getDayCountSurplus();
     }
 
 
