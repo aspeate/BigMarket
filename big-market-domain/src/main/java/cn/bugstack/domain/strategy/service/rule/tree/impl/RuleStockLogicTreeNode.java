@@ -10,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
+import java.util.Date;
 
 /**
  *  库存扣减节点
@@ -24,9 +25,9 @@ public class RuleStockLogicTreeNode implements ILogicTreeNode {
     private IStrategyRepository strategyRepository;
 
     @Override
-    public DefaultTreeFactory.TreeActionEntity logic(String userId, Long strategyId, Integer awardId,String ruleValue) {
+    public DefaultTreeFactory.TreeActionEntity logic(String userId, Long strategyId, Integer awardId,String ruleValue, Date endDateTime) {
         log.info("规则过滤-扣减库存 userId: {} strategyId {} awardId: {}", userId, strategyId, awardId);
-        Boolean status = strategyDispatch.subtractionAwardStock(strategyId, awardId);
+        Boolean status = strategyDispatch.subtractionAwardStock(strategyId, awardId,endDateTime);
         if (status){
             //写入队列消息,延迟消费更新数据库记录.[在trigger的job,UpdateAwardStockJob下消费队列,更新数据库记录]
             log.info("发送队列消息");

@@ -7,13 +7,13 @@ import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 
+/**
+ * 策略奖品
+ */
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-/**
- * 策略奖品
- */
 public class StrategyAwardEntity {
 
     /** 抽奖策略id */
@@ -30,6 +30,9 @@ public class StrategyAwardEntity {
     private Integer awardCountSurplus;
     /** 抽奖率 */
     private BigDecimal awardRate;
+    /** 奖品类型 */
+    private String ruleModel;
     /** 奖品排序 */
     private Integer sort;
 }
+

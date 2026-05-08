@@ -19,10 +19,7 @@ import org.springframework.stereotype.Repository;
 
 import javax.annotation.Resource;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 import static cn.bugstack.types.enums.ResponseCode.UN_ASSEMBLED_STRATEGY_ARMORY;
@@ -53,6 +50,28 @@ public class StrategyRepository implements IStrategyRepository {
     @Resource
     private IRuleTreeNodeLineDao ruleTreeNodeLineDao;
 
+
+    @Override
+    public List<StrategyAwardEntity> queryStrategyAwardListByActivityId(Long activityId) {
+        Long strategyId = raffleActivityDao.queryStrategyIdByActivityId(activityId);
+        return queryStrategyAwardList(strategyId);
+    }
+
+    @Override
+    public Map<String, Integer> queryAwardRuleLockCount(String[] treeIds) {
+        if (null == treeIds || treeIds.length == 0){
+            return Collections.emptyMap();
+        }
+        List<RuleTreeNode> ruleTreeNodes = ruleTreeNodeDao.queryRuleLocks(treeIds);
+        Map<String, Integer> map = new HashMap<>(ruleTreeNodes.size());
+        for (RuleTreeNode ruleTreeNode : ruleTreeNodes) {
+            String treeId = ruleTreeNode.getTreeId();
+            Integer ruleValue = Integer.valueOf(ruleTreeNode.getRuleValue());
+            map.put(treeId, ruleValue);
+        }
+        return map;
+    }
+
     @Override
     public List<StrategyAwardEntity> queryStrategyAwardList(Long strategyId) {
         String cacheKey = Constants.RedisKey.STRATEGY_AWARD_LIST_KEY + strategyId;
@@ -72,6 +91,7 @@ public class StrategyRepository implements IStrategyRepository {
                     .awardCountSurplus(strategyAward.getAwardCountSurplus())
                     .awardRate(strategyAward.getAwardRate())
                     .sort(strategyAward.getSort())
+                    .ruleModel(strategyAward.getRuleModels())
                     .build();
             strategyAwardEntities.add(strategyAwardEntity);
         }
@@ -243,13 +263,26 @@ public class StrategyRepository implements IStrategyRepository {
 
     @Override
     public Boolean subtractionAwardStock(String cacheKey) {
+        return subtractionAwardStock(cacheKey, null);
+    }
+
+    @Override
+    public Boolean subtractionAwardStock(String cacheKey, Date endDateTime) {
+
         long surplus = redisService.decr(cacheKey);
         if (surplus < 0) {
             redisService.setValue(cacheKey, 0);
             return false;
         }
         String lockKey = cacheKey + Constants.UNDERLINE + surplus;
-        Boolean lock = redisService.setNX(lockKey, "lock");
+        Boolean lock = false;
+        if (null != endDateTime) {
+            long expireMillis = endDateTime.getTime() - System.currentTimeMillis() + TimeUnit.DAYS.toMillis(1);
+            lock = redisService.setNx(lockKey, expireMillis, TimeUnit.MILLISECONDS);
+        } else {
+            lock = redisService.setNX(lockKey, "lock");
+        }
+
         if (!lock) {
             log.info("库存扣减失败{}，请稍后重试", lockKey);
         }

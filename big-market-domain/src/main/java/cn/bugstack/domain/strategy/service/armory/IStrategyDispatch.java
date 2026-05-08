@@ -1,5 +1,7 @@
 package cn.bugstack.domain.strategy.service.armory;
 
+import java.util.Date;
+
 /**
  * 策略装配库(兵工厂),负责初始化策略计算
  */
@@ -20,8 +22,9 @@ public interface IStrategyDispatch {
      *
      * @param strategyId 策略ID
      * @param awardId 奖品ID
+     * @param endDateTime 缓存库存有效期
      * @return 扣减结果
      */
-    Boolean subtractionAwardStock(Long strategyId, Integer awardId);
+    Boolean subtractionAwardStock(Long strategyId, Integer awardId, Date endDateTime);
 
 }

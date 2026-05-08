@@ -7,8 +7,10 @@ import cn.bugstack.domain.strategy.model.valobj.RuleTreeVO;
 import cn.bugstack.domain.strategy.model.valobj.StrategyAwardRuleModelVO;
 import cn.bugstack.domain.strategy.model.valobj.StrategyAwardStockKeyVO;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 策略仓储接口
@@ -39,6 +41,8 @@ public interface IStrategyRepository {
 
     Boolean subtractionAwardStock(String cacheKey);
 
+    Boolean subtractionAwardStock(String cacheKey, Date endDateTime);
+
 
     void awardStockConsumeSendQueue(StrategyAwardStockKeyVO strategyAwardStockKeyVO);
 
@@ -51,4 +55,8 @@ public interface IStrategyRepository {
     Long queryStrategyIdByActivityId(Long activityId);
 
     long queryTodayUserRaffleCount(String userId, Long strategyId);
+
+    List<StrategyAwardEntity> queryStrategyAwardListByActivityId(Long activityId);
+
+    Map<String, Integer> queryAwardRuleLockCount(String[] treeIds);
 }
