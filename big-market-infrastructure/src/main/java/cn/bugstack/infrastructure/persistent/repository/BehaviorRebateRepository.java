@@ -18,15 +18,19 @@ import cn.bugstack.types.enums.ResponseCode;
 import cn.bugstack.types.exception.AppException;
 import com.alibaba.fastjson.JSON;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Repository;
+import org.springframework.dao.DuplicateKeyException;
+import org.springframework.stereotype.Component;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ *  行为返利服务仓储实现
+ */
 @Slf4j
-@Repository
+@Component
 public class BehaviorRebateRepository implements IBehaviorRebateRepository {
 
     @Resource
@@ -55,14 +59,12 @@ public class BehaviorRebateRepository implements IBehaviorRebateRepository {
                     .build());
         }
         return dailyBehaviorRebateVOS;
-
     }
 
     @Override
     public void saveUserRebateRecord(String userId, List<BehaviorRebateAggregate> behaviorRebateAggregates) {
         try {
             dbRouter.doRouter(userId);
-            //开启事务
             transactionTemplate.execute(status -> {
                 try {
                     for (BehaviorRebateAggregate behaviorRebateAggregate : behaviorRebateAggregates) {
@@ -88,16 +90,14 @@ public class BehaviorRebateRepository implements IBehaviorRebateRepository {
                         task.setState(taskEntity.getState().getCode());
                         taskDao.insert(task);
                     }
-
                     return 1;
-                }catch (Exception e){
+                } catch (DuplicateKeyException e) {
                     status.setRollbackOnly();
                     log.error("写入返利记录，唯一索引冲突 userId: {}", userId, e);
-                    throw new AppException(ResponseCode.INDEX_DUP.getCode(), e);
+                    throw new AppException(ResponseCode.INDEX_DUP.getCode(), ResponseCode.INDEX_DUP.getInfo());
                 }
             });
-
-        }finally {
+        } finally {
             dbRouter.clear();
         }
 
@@ -119,4 +119,5 @@ public class BehaviorRebateRepository implements IBehaviorRebateRepository {
         }
 
     }
+
 }

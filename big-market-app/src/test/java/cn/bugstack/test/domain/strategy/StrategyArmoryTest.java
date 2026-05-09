@@ -43,7 +43,7 @@ public class StrategyArmoryTest {
 
     @Test
     public void test_assembleLotteryStrategy() {
-        strategyArmory.assembleLotteryStrategy(10001L);
+        strategyArmory.assembleLotteryStrategy(10006L);
         log.info("测试完成");
     }
 

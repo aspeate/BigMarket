@@ -11,6 +11,6 @@ import org.apache.ibatis.annotations.Mapper;
 @DBRouterStrategy(splitTable = true)
 public interface IUserBehaviorRebateOrderDao {
 
-    void insert(UserBehaviorRebateOrder userBehaviorRebateOrder);
+    boolean insert(UserBehaviorRebateOrder userBehaviorRebateOrder);
 
 }
