@@ -23,5 +23,12 @@
                      #{userId},#{activityId},#{strategyId},#{orderId},#{awardId},#{awardTitle},#{awardTime},#{awardState},now(),now()
                  )
     </insert>
+    <update id="updateAwardRecordCompletedState" parameterType="cn.bugstack.infrastructure.persistent.po.UserAwardRecord">
+        update user_award_record
+        set award_state = 'completed'
+        where order_id = #{orderId}
+          and user_id = #{userId}
+          and award_state = 'create'
+    </update>
 
 </mapper>
