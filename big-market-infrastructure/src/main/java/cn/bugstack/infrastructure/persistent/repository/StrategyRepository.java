@@ -89,11 +89,11 @@ public class StrategyRepository implements IStrategyRepository {
     @Override
     public List<RuleWeightVO> queryAwardRuleWeight(Long strategyId) {
         // 优先从缓存获取
-        String cacheKey = Constants.RedisKey.STRATEGY_RULE_WEIGHT_KEY + strategyId;
-        List<RuleWeightVO> ruleWeightVOS = redisService.getValue(cacheKey);
-        if (null != ruleWeightVOS) return ruleWeightVOS;
+//        String cacheKey = Constants.RedisKey.STRATEGY_RULE_WEIGHT_KEY + strategyId;
+//        List<RuleWeightVO> ruleWeightVOS = redisService.getValue(cacheKey);
+//        if (null != ruleWeightVOS) return ruleWeightVOS;
 
-        ruleWeightVOS = new ArrayList<>();
+        List<RuleWeightVO> ruleWeightVOS = new ArrayList<>();
         // 1. 查询权重规则配置
         StrategyRule strategyRuleReq = new StrategyRule();
         strategyRuleReq.setStrategyId(strategyId);
@@ -130,7 +130,7 @@ public class StrategyRepository implements IStrategyRepository {
         }
 
         // 设置缓存 - 实际场景中，这类数据，可以在活动下架的时候统一清空缓存。
-        redisService.setValue(cacheKey, ruleWeightVOS);
+//        redisService.setValue(cacheKey, ruleWeightVOS);
 
         return ruleWeightVOS;
     }
