@@ -46,7 +46,7 @@ public class BehaviorRebateServiceTest {
         behaviorEntity.setUserId("xiaofuge");
         behaviorEntity.setBehaviorTypeVO(BehaviorTypeVO.SIGN);
         // 重复的 OutBusinessNo 会报错唯一索引冲突，这也是保证幂等的手段，确保不会多记账
-        behaviorEntity.setOutBusinessNo("20260501");
+        behaviorEntity.setOutBusinessNo("20260501002");
 
         List<String> orderIds = null;
         try {
