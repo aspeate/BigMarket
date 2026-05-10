@@ -3,6 +3,8 @@ package cn.bugstack.test.trigger;
 import cn.bugstack.trigger.api.IRaffleActivityService;
 import cn.bugstack.trigger.api.dto.ActivityDrawRequestDTO;
 import cn.bugstack.trigger.api.dto.ActivityDrawResponseDTO;
+import cn.bugstack.trigger.api.dto.UserActivityAccountRequestDTO;
+import cn.bugstack.trigger.api.dto.UserActivityAccountResponseDTO;
 import cn.bugstack.types.model.Response;
 import com.alibaba.fastjson.JSON;
 import lombok.extern.slf4j.Slf4j;
@@ -12,9 +14,10 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import javax.annotation.Resource;
+import java.util.concurrent.CountDownLatch;
 
 /**
- *  抽奖活动服务测试
+ * 抽奖活动服务测试
  */
 @Slf4j
 @RunWith(SpringRunner.class)
@@ -31,6 +34,13 @@ public class RaffleActivityControllerTest {
     }
 
     @Test
+    public void test_armory_stock() {
+        Response<Boolean> response = raffleActivityService.armory(100301L);
+        log.info("测试结果：{}", JSON.toJSONString(response));
+
+    }
+
+    @Test
     public void test_draw() {
         ActivityDrawRequestDTO request = new ActivityDrawRequestDTO();
         request.setActivityId(100301L);
@@ -42,10 +52,30 @@ public class RaffleActivityControllerTest {
     }
 
     @Test
-    public void test_calendarSignRebate(){
-        Response<Boolean> response = raffleActivityService.calendarSignRebate("xiaofuge");
+    public void test_calendarSignRebate() throws InterruptedException {
+        Response<Boolean> response = raffleActivityService.calendarSignRebate("xiaofuge5");
+        log.info("测试结果：{}", JSON.toJSONString(response));
+        new CountDownLatch(1).await();
+    }
+
+
+    @Test
+    public void test_isCalendarSignRebate() {
+        Response<Boolean> response = raffleActivityService.isCalendarSignRebate("xiaofuge1");
         log.info("测试结果：{}", JSON.toJSONString(response));
     }
 
+    @Test
+    public void test_queryUserActivityAccount() {
+        UserActivityAccountRequestDTO request = new UserActivityAccountRequestDTO();
+        request.setActivityId(100301L);
+        request.setUserId("xiaofuge1");
+
+        // 查询数据
+        Response<UserActivityAccountResponseDTO> response = raffleActivityService.queryUserActivityAccount(request);
+
+        log.info("请求参数：{}", JSON.toJSONString(request));
+        log.info("测试结果：{}", JSON.toJSONString(response));
+    }
 
 }

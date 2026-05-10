@@ -77,7 +77,7 @@ public class StrategyArmoryTest {
 //    public void setUp() {
 //        strategyArmory.assembleLotteryStrategy(10003L);
 //
-//        ReflectionTestUtils.setField(ruleWeightLogicChain, "userScore", 4500L);
+
 
 //    }
     @Before
@@ -86,7 +86,7 @@ public class StrategyArmoryTest {
 //        log.info("测试结果: {}", strategyArmory.assembleLotteryStrategy(10001L));
 //        log.info("测试结果: {}", strategyArmory.assembleLotteryStrategy(10003L));
         log.info("测试结果: {}", strategyArmory.assembleLotteryStrategy(10006L));
-        ReflectionTestUtils.setField(ruleWeightLogicChain, "userScore", 4500L);
+
         ReflectionTestUtils.setField(ruleLockLogicTreeNode, "userRaffleCount", 10L);
     }
 
@@ -116,7 +116,7 @@ public class StrategyArmoryTest {
     @Test
     public void test_LogicChain_rule_weight() {
         // 通过反射 mock 规则中的值
-        ReflectionTestUtils.setField(ruleWeightLogicChain, "userScore", 4900L);
+
 
         ILogicChain logicChain = defaultChainFactory.openLogicChain(10001L);
         DefaultChainFactory.StrategyAwardVO StrategyAwardVO = logicChain.logic("xiaofuge", 10001L);
