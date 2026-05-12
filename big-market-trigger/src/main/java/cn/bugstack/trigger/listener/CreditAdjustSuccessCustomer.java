@@ -3,6 +3,8 @@ package cn.bugstack.trigger.listener;
 import cn.bugstack.domain.activity.model.entity.DeliveryOrderEntity;
 import cn.bugstack.domain.activity.service.IRaffleActivityAccountQuotaService;
 import cn.bugstack.domain.credit.event.CreditAdjustSuccessMessageEvent;
+import cn.bugstack.domain.rebate.model.valobj.RebateTypeVO;
+import cn.bugstack.types.common.Constants;
 import cn.bugstack.types.enums.ResponseCode;
 import cn.bugstack.types.event.BaseEvent;
 import cn.bugstack.types.exception.AppException;
@@ -35,6 +37,12 @@ public class CreditAdjustSuccessCustomer {
             BaseEvent.EventMessage<CreditAdjustSuccessMessageEvent.CreditAdjustSuccessMessage> eventMessage = JSON.parseObject(message, new TypeReference<BaseEvent.EventMessage<CreditAdjustSuccessMessageEvent.CreditAdjustSuccessMessage>>() {
             }.getType());
             CreditAdjustSuccessMessageEvent.CreditAdjustSuccessMessage creditAdjustSuccessMessage = eventMessage.getData();
+
+
+
+            // 如果是签到发放积分就跳过
+            String[] split = creditAdjustSuccessMessage.getOutBusinessNo().split(Constants.UNDERLINE);
+            if(split.length > 1 && split[1].equals(RebateTypeVO.INTEGRAL.getCode())) return;
 
             // 积分发货
             DeliveryOrderEntity deliveryOrderEntity = new DeliveryOrderEntity();
